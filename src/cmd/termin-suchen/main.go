@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"time"
 
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/app"
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/crawler"
@@ -10,16 +12,23 @@ import "github.com/adlandh/termin-berlinweit-suchen/src/lib/config"
 
 func main() {
 	configProvider := config.NewEnvLoader()
-	if err := configProvider.LoadConfig(); err != nil {
-		log.Fatal(err)
+	configProvider.LoadConfig()
+
+	ticker := time.NewTicker(time.Duration(configProvider.GetCheckPeriod()) * time.Second)
+	errCh := make(chan error, 1)
+	doneCh := make(chan struct{}, 1)
+
+	for {
+		select {
+		case <-ticker.C:
+			crawlerProvider := crawler.NewCollyCrawler(configProvider.GetVerbose(), errCh)
+
+			mainApp := app.NewApp(configProvider, crawlerProvider, errCh, doneCh)
+			mainApp.Run()
+		case <-doneCh:
+			os.Exit(0)
+		case err := <-errCh:
+			log.Fatal(err)
+		}
 	}
-
-	crawlerProvider := crawler.NewCollyCrawler(configProvider.GetVerbose())
-
-	mainApp := app.NewApp(configProvider, crawlerProvider)
-
-	if err := mainApp.Run(); err != nil {
-		log.Fatal(err)
-	}
-
 }

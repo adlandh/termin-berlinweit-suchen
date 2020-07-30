@@ -1,7 +1,7 @@
 package crawler
 
 import (
-	"fmt"
+	"log"
 	"sync"
 
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/misc"
@@ -12,30 +12,35 @@ type CollyCrawler struct {
 	mutex     *sync.RWMutex
 	collector *colly.Collector
 	months    misc.MonthsMap
+	err       chan error
+	verbose   bool
 }
 
-func NewCollyCrawler(verbose bool) *CollyCrawler {
-	c := &CollyCrawler{collector: colly.NewCollector(), mutex: &sync.RWMutex{}, months: make(misc.MonthsMap)}
-	if verbose {
+func NewCollyCrawler(verbose bool, err chan error) *CollyCrawler {
+	c := &CollyCrawler{collector: colly.NewCollector(), mutex: &sync.RWMutex{}, months: make(misc.MonthsMap), err: err, verbose: verbose}
+	if c.verbose {
 		c.collector.OnRequest(func(r *colly.Request) {
-			fmt.Println("Visiting: ", r.URL.String())
+			log.Println("Visiting: ", r.URL.String())
 		})
 	}
 	return c
 }
 
-func (c *CollyCrawler) GetTerminUrl(mainUrl string) (terminUrl string, err error) {
+func (c *CollyCrawler) GetTerminUrl(mainUrl string) string {
+	var terminUrl string
 	c.collector.OnHTML(misc.TerminUrlElement, func(element *colly.HTMLElement) {
 		terminUrl = element.Request.AbsoluteURL(element.ChildAttr(misc.TerminButtonElement, "href"))
 	})
 
-	err = c.collector.Visit(mainUrl)
+	err := c.collector.Visit(mainUrl)
+	if err != nil {
+		c.err <- err
+	}
 
-	return
+	return terminUrl
 }
 
-func (c *CollyCrawler) CheckCalendar(terminUrl string) (misc.MonthsMap, error) {
-	var err error
+func (c *CollyCrawler) CheckCalendar(terminUrl string) misc.MonthsMap {
 	c.collector.OnHTML(misc.TerminMonthTable, func(element *colly.HTMLElement) {
 		month := element.ChildText(misc.TerminMonthHeader)
 		c.mutex.Lock()
@@ -49,12 +54,22 @@ func (c *CollyCrawler) CheckCalendar(terminUrl string) (misc.MonthsMap, error) {
 	})
 
 	c.collector.OnHTML(misc.TerminNextLinkElement, func(element *colly.HTMLElement) {
-		err = c.collector.Visit(c.getAbsoluteUrl(element))
+		url := c.getAbsoluteUrl(element)
+		if url == "" {
+			return
+		}
+		err := c.collector.Visit(url)
+		if err != nil {
+			c.err <- err
+		}
 	})
 
-	err = c.collector.Visit(terminUrl)
+	err := c.collector.Visit(terminUrl)
+	if err != nil {
+		c.err <- err
+	}
 
-	return c.months, err
+	return c.months
 }
 
 func (c *CollyCrawler) getAbsoluteUrl(element *colly.HTMLElement) string {
