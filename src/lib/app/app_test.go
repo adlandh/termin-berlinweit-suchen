@@ -1,9 +1,10 @@
-package app
+package app_test
 
 import (
 	"reflect"
 	"testing"
 
+	"github.com/adlandh/termin-berlinweit-suchen/src/lib/app"
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/misc"
 )
 
@@ -33,7 +34,7 @@ func TestApp_convertAndSortMonths(t *testing.T) {
 					Dates: misc.Dates{
 						misc.Date{
 							Title: "02",
-							Url:   "-",
+							URL:   "-",
 						},
 					},
 				},
@@ -42,7 +43,7 @@ func TestApp_convertAndSortMonths(t *testing.T) {
 					Dates: misc.Dates{
 						misc.Date{
 							Title: "03",
-							Url:   "-",
+							URL:   "-",
 						},
 					},
 				},
@@ -51,7 +52,7 @@ func TestApp_convertAndSortMonths(t *testing.T) {
 					Dates: misc.Dates{
 						misc.Date{
 							Title: "01",
-							Url:   "-",
+							URL:   "-",
 						},
 					},
 				},
@@ -60,9 +61,9 @@ func TestApp_convertAndSortMonths(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &App{}
-			if got := a.convertAndSortMonths(tt.months); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("convertAndSortMonths() = %v, want %v", got, tt.want)
+			a := &app.App{}
+			if got := a.ConvertAndSortMonths(tt.months); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ConvertAndSortMonths() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -86,15 +87,15 @@ func TestApp_convertAndSortDates(t *testing.T) {
 			want: misc.Dates{
 				misc.Date{
 					Title: "01",
-					Url:   "-",
+					URL:   "-",
 				},
 				misc.Date{
 					Title: "03",
-					Url:   "-",
+					URL:   "-",
 				},
 				misc.Date{
 					Title: "05",
-					Url:   "-",
+					URL:   "-",
 				},
 			},
 		},
@@ -110,28 +111,28 @@ func TestApp_convertAndSortDates(t *testing.T) {
 			want: misc.Dates{
 				misc.Date{
 					Title: "01",
-					Url:   "-",
+					URL:   "-",
 				},
 				misc.Date{
 					Title: "04",
-					Url:   "-",
+					URL:   "-",
 				},
 				misc.Date{
 					Title: "05",
-					Url:   "-",
+					URL:   "-",
 				},
 				misc.Date{
 					Title: "12",
-					Url:   "-",
+					URL:   "-",
 				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &App{}
-			if got := a.convertAndSortDates(tt.month); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("convertAndSortDates() = %v, want %v", got, tt.want)
+			a := &app.App{}
+			if got := a.ConvertAndSortDates(tt.month); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ConvertAndSortDates() = %v, want %v", got, tt.want)
 			}
 		})
 	}

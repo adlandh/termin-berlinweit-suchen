@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/app"
+	"github.com/adlandh/termin-berlinweit-suchen/src/lib/config"
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/crawler"
 )
-import "github.com/adlandh/termin-berlinweit-suchen/src/lib/config"
 
 func main() {
 	configProvider := config.NewEnvLoader()
