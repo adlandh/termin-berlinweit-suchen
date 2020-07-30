@@ -12,8 +12,8 @@ type Envloader struct {
 }
 
 func (e *Envloader) LoadConfig() error {
-	e.Config.MainUrl = os.Getenv("MAIN_IRL")
-	if os.Getenv("VERBOSE") == "true" {
+	e.Config.MainUrl = os.Getenv("TERMIN_SUCHEN_MAIN_IRL")
+	if os.Getenv("TERMIN_SUCHEN_VERBOSE") == "true" {
 		e.Config.Verbose = true
 	}
 
