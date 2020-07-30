@@ -1,8 +1,9 @@
 package model
 
 type Config struct {
-	MainUrl string
-	Verbose bool
+	MainUrl     string
+	Verbose     bool
+	CheckPeriod int
 }
 
 func (c Config) GetConfig() Config {
@@ -15,4 +16,8 @@ func (c Config) GetMainUrl() string {
 
 func (c Config) GetVerbose() bool {
 	return c.Verbose
+}
+
+func (c Config) GetCheckPeriod() int {
+	return c.CheckPeriod
 }
