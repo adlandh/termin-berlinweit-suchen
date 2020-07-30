@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 
@@ -13,29 +14,24 @@ import (
 type App struct {
 	config  config.AbstractConfigProvider
 	crawler crawler.AbstractCrawler
+	err     chan error
+	done    chan struct{}
 }
 
-func NewApp(config config.AbstractConfigProvider, crawler crawler.AbstractCrawler) *App {
+func NewApp(config config.AbstractConfigProvider, crawler crawler.AbstractCrawler, err chan error,
+	done chan struct{}) *App {
 	return &App{
 		config:  config,
 		crawler: crawler,
+		err:     err,
+		done:    done,
 	}
 }
 
-func (a *App) Run() error {
-	terminUrl, err := a.crawler.GetTerminUrl(a.config.GetMainUrl())
-	if err != nil {
-		return err
-	}
-
-	months, err := a.crawler.CheckCalendar(terminUrl)
-	if err != nil {
-		return err
-	}
-
+func (a *App) Run() {
+	terminUrl := a.crawler.GetTerminUrl(a.config.GetMainUrl())
+	months := a.crawler.CheckCalendar(terminUrl)
 	a.printDates(a.convertAndSortMonths(months))
-
-	return nil
 }
 
 func (a *App) convertAndSortMonths(months misc.MonthsMap) misc.Months {
@@ -103,7 +99,9 @@ func (a *App) convertAndSortDates(month misc.MonthMap) misc.Dates {
 
 func (a *App) printDates(months misc.Months) {
 	if len(months) == 0 {
-		fmt.Println("No available dates found")
+		if a.config.GetVerbose() {
+			log.Println("No available dates found")
+		}
 		return
 	}
 	fmt.Println("Available dates by months: ")
@@ -113,4 +111,5 @@ func (a *App) printDates(months misc.Months) {
 			fmt.Println(date.Title, "-", date.Url)
 		}
 	}
+	a.done <- struct{}{}
 }
