@@ -16,3 +16,7 @@ vendor/
 
 # Executable
 /termin-suchen
+
+# .env
+/.env
+
