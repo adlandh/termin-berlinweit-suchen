@@ -26,13 +26,13 @@ func NewCollyCrawler(verbose bool, err chan error) *CollyCrawler {
 	return c
 }
 
-func (c *CollyCrawler) GetAppointmentURL(mainUrl string) string {
+func (c *CollyCrawler) GetAppointmentURL(mainURL string) string {
 	var appointmentURL string
 	c.collector.OnHTML(misc.TerminURLElement, func(element *colly.HTMLElement) {
 		appointmentURL = element.Request.AbsoluteURL(element.ChildAttr(misc.TerminButtonElement, "href"))
 	})
 
-	err := c.collector.Visit(mainUrl)
+	err := c.collector.Visit(mainURL)
 	if err != nil {
 		c.err <- err
 	}
