@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/misc"
+	"github.com/gocolly/colly"
 )
-import "github.com/gocolly/colly"
 
 type CollyCrawler struct {
 	mutex     *sync.RWMutex
@@ -26,9 +26,9 @@ func NewCollyCrawler(verbose bool, err chan error) *CollyCrawler {
 	return c
 }
 
-func (c *CollyCrawler) GetTerminUrl(mainUrl string) string {
+func (c *CollyCrawler) GetAppointmentURL(mainUrl string) string {
 	var terminUrl string
-	c.collector.OnHTML(misc.TerminUrlElement, func(element *colly.HTMLElement) {
+	c.collector.OnHTML(misc.TerminURLElement, func(element *colly.HTMLElement) {
 		terminUrl = element.Request.AbsoluteURL(element.ChildAttr(misc.TerminButtonElement, "href"))
 	})
 
@@ -47,14 +47,14 @@ func (c *CollyCrawler) CheckCalendar(terminUrl string) misc.MonthsMap {
 		if _, ok := c.months[month]; !ok {
 			c.months[month] = make(misc.MonthMap)
 			element.ForEach(misc.TerminDateAvailable, func(i int, element *colly.HTMLElement) {
-				c.months[month][element.Text] = c.getAbsoluteUrl(element)
+				c.months[month][element.Text] = c.getAbsoluteURL(element)
 			})
 		}
 		c.mutex.Unlock()
 	})
 
 	c.collector.OnHTML(misc.TerminNextLinkElement, func(element *colly.HTMLElement) {
-		url := c.getAbsoluteUrl(element)
+		url := c.getAbsoluteURL(element)
 		if url == "" {
 			return
 		}
@@ -72,7 +72,7 @@ func (c *CollyCrawler) CheckCalendar(terminUrl string) misc.MonthsMap {
 	return c.months
 }
 
-func (c *CollyCrawler) getAbsoluteUrl(element *colly.HTMLElement) string {
+func (c *CollyCrawler) getAbsoluteURL(element *colly.HTMLElement) string {
 	url := element.ChildAttr("a", "href")
 	if url != "" {
 		url = element.Request.AbsoluteURL(url)

@@ -6,7 +6,7 @@ type MonthsMap map[string]MonthMap
 
 type Date struct {
 	Title string
-	Url   string
+	URL   string
 }
 
 type Dates []Date

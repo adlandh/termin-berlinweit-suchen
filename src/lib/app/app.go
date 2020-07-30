@@ -29,12 +29,12 @@ func NewApp(config config.AbstractConfigProvider, crawler crawler.AbstractCrawle
 }
 
 func (a *App) Run() {
-	terminUrl := a.crawler.GetTerminUrl(a.config.GetMainUrl())
+	terminUrl := a.crawler.GetAppointmentURL(a.config.GetMainURL())
 	months := a.crawler.CheckCalendar(terminUrl)
-	a.printDates(a.convertAndSortMonths(months))
+	a.printDates(a.ConvertAndSortMonths(months))
 }
 
-func (a *App) convertAndSortMonths(months misc.MonthsMap) misc.Months {
+func (a *App) ConvertAndSortMonths(months misc.MonthsMap) misc.Months {
 	germanMonthNames := map[string]int{
 		"Januar":    1,
 		"Februar":   2,
@@ -68,7 +68,7 @@ func (a *App) convertAndSortMonths(months misc.MonthsMap) misc.Months {
 		if len(months[month]) > 0 {
 			newMonths = append(newMonths, misc.Month{
 				Title: month,
-				Dates: a.convertAndSortDates(months[month]),
+				Dates: a.ConvertAndSortDates(months[month]),
 			})
 		}
 	}
@@ -76,7 +76,7 @@ func (a *App) convertAndSortMonths(months misc.MonthsMap) misc.Months {
 	return newMonths
 }
 
-func (a *App) convertAndSortDates(month misc.MonthMap) misc.Dates {
+func (a *App) ConvertAndSortDates(month misc.MonthMap) misc.Dates {
 	var newMonth misc.Dates
 	var datesSlice []string
 	for date := range month {
@@ -90,7 +90,7 @@ func (a *App) convertAndSortDates(month misc.MonthMap) misc.Dates {
 	for _, date := range datesSlice {
 		newMonth = append(newMonth, misc.Date{
 			Title: date,
-			Url:   month[date],
+			URL:   month[date],
 		})
 	}
 
@@ -108,7 +108,7 @@ func (a *App) printDates(months misc.Months) {
 	for _, month := range months {
 		fmt.Println(month.Title + ":")
 		for _, date := range month.Dates {
-			fmt.Println(date.Title, "-", date.Url)
+			fmt.Println(date.Title, "-", date.URL)
 		}
 	}
 	a.done <- struct{}{}
