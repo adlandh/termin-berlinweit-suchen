@@ -27,9 +27,9 @@ func NewCollyCrawler(verbose bool, err chan error) *CollyCrawler {
 }
 
 func (c *CollyCrawler) GetAppointmentURL(mainUrl string) string {
-	var terminUrl string
+	var appointmentURL string
 	c.collector.OnHTML(misc.TerminURLElement, func(element *colly.HTMLElement) {
-		terminUrl = element.Request.AbsoluteURL(element.ChildAttr(misc.TerminButtonElement, "href"))
+		appointmentURL = element.Request.AbsoluteURL(element.ChildAttr(misc.TerminButtonElement, "href"))
 	})
 
 	err := c.collector.Visit(mainUrl)
@@ -37,10 +37,10 @@ func (c *CollyCrawler) GetAppointmentURL(mainUrl string) string {
 		c.err <- err
 	}
 
-	return terminUrl
+	return appointmentURL
 }
 
-func (c *CollyCrawler) CheckCalendar(terminUrl string) misc.MonthsMap {
+func (c *CollyCrawler) CheckCalendar(appointmentURL string) misc.MonthsMap {
 	c.collector.OnHTML(misc.TerminMonthTable, func(element *colly.HTMLElement) {
 		month := element.ChildText(misc.TerminMonthHeader)
 		c.mutex.Lock()
@@ -64,7 +64,7 @@ func (c *CollyCrawler) CheckCalendar(terminUrl string) misc.MonthsMap {
 		}
 	})
 
-	err := c.collector.Visit(terminUrl)
+	err := c.collector.Visit(appointmentURL)
 	if err != nil {
 		c.err <- err
 	}

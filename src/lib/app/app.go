@@ -29,8 +29,8 @@ func NewApp(config config.AbstractConfigProvider, crawler crawler.AbstractCrawle
 }
 
 func (a *App) Run() {
-	terminUrl := a.crawler.GetAppointmentURL(a.config.GetMainURL())
-	months := a.crawler.CheckCalendar(terminUrl)
+	appointmentURL := a.crawler.GetAppointmentURL(a.config.GetMainURL())
+	months := a.crawler.CheckCalendar(appointmentURL)
 	a.printDates(a.ConvertAndSortMonths(months))
 }
 
