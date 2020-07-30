@@ -4,20 +4,14 @@ import (
 	"os"
 
 	"github.com/adlandh/termin-berlinweit-suchen/src/lib/model"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 )
 
-type DotEnvloader struct {
+type Envloader struct {
 	model.Config
 }
 
-func (e *DotEnvloader) LoadConfig() error {
-
-	err := godotenv.Load()
-	if err != nil {
-		return err
-	}
-
+func (e *Envloader) LoadConfig() error {
 	e.Config.MainUrl = os.Getenv("MAIN_IRL")
 	if os.Getenv("VERBOSE") == "true" {
 		e.Config.Verbose = true
@@ -26,6 +20,6 @@ func (e *DotEnvloader) LoadConfig() error {
 	return nil
 }
 
-func NewDotEnvLoader() *DotEnvloader {
-	return &DotEnvloader{}
+func NewEnvLoader() *Envloader {
+	return &Envloader{}
 }
